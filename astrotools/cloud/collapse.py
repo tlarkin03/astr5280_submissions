@@ -78,6 +78,25 @@ def jeans_mass(temperature, density, mu=c.MU_CLOUD):
     return MJ
 
 
+def jeans_length(temperature, density, mu=c.MU_CLOUD):
+    """Jeans length of uniform sphere
+    Parameters
+    -------------
+    temperature
+        [K]
+    density
+        [kg m^-3]
+    
+    Returns
+    ----------
+    Jean's Length []
+    """
+    fac3 = np.power(c.K_B * temperature / (mu * c.M_H), 0.5)
+    fac4 = np.power(np.pi / (c.G * density), 0.5)
+    LJ = fac3 * fac4
+    return LJ
+
+    
 def free_fall_time(density):
     """Free-fall collapse time of a uniform sphere.
 
@@ -96,7 +115,8 @@ def free_fall_time(density):
     Fiducial core: t_ff = 9.73e4 yr. Note what the result does NOT depend on --
     the test checks that too.
     """
-    raise NotImplementedError("PS1, question 2")
+    """raise NotImplementedError("PS1, question 2")"""
+    return np.sqrt(3 * np.pi / (32 * c.G * density))
 
 
 def specific_angular_momentum(omega, radius):
@@ -114,7 +134,8 @@ def specific_angular_momentum(omega, radius):
     float or ndarray
         Specific angular momentum [m^2 s^-1].
     """
-    raise NotImplementedError("PS1, question 3")
+    """raise NotImplementedError("PS1, question 3")"""
+    return radius**2 * omega
 
 
 def centrifugal_radius(omega, radius, mass, theta=np.pi / 2):
@@ -146,4 +167,6 @@ def centrifugal_radius(omega, radius, mass, theta=np.pi / 2):
     The sin^4(theta) dependence is what makes this a disk rather than a shell.
     Use GM_SUN rather than G * M_SUN when the mass is exactly one solar mass.
     """
-    raise NotImplementedError("PS1, question 3")
+    """raise NotImplementedError("PS1, question 3")"""
+    return omega**2 * radius**4 * np.sin(theta)**4 / (c.G * mass)
+
