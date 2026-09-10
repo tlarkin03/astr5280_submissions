@@ -34,22 +34,26 @@ for n in np.linspace(1e10, 1e12, 1000, endpoint=True): #inclusive linspace with 
     t_ff.append(collapse.free_fall_time(rho)) #calculates and adds t_ff to grouping
 
 t_ff = np.array(t_ff)
-t_life = np.array(t_life) #online sources suggested this to make the graphing easier
-
-plt.loglog(t_ff, t_life, label = 'inferred lifetime vs free-fall time') #scatterplot of both log axes
-#plt.axline((0,0), slope=1, color='black')
-plt.xlabel('t_ff (s)') #labels x
-plt.ylabel('t_life (s)') #labels y
-plt.title('t_life vs t_ff') #title
-plt.grid(True) #gridlines to help see.
+t_life = np.array(t_life) #online sources suggested this to allow to make the polynomial.
 
 t_life_min = np.min(t_life) #minimum t_life, for start of line with slope of 1
 t_ff_min = np.min(t_ff) #minimum t_ff, for start of line of slope 1
 t_diff = t_ff_min - t_life_min #difference between t_ff and t_life at minimum times, setting y-intercept of linear line. 
-plt.plot(t_ff, t_ff - t_diff, label = 'slope of 1') #this is a linear line, just looks very funny since it's on a loglog plot.
 
+
+plt.scatter(t_ff, t_life, label = 'inferred lifetime vs free-fall time') #scatterplot of both log axes
+plt.xlabel('t_ff (s)') #labels x
+plt.ylabel('t_life (s)') #labels y
+plt.title('t_life vs t_ff') #title
 m, c = np.polyfit(t_ff, t_life, 1) #first order polynomial fit of the data, slope m.
 plt.plot(t_ff, m*t_ff + c, color="black", linestyle = '--', label = f"linear fit of t_life vs t_ff, slope = {m}")
+plt.axline((t_ff_min,t_life_min), slope = 1, color = 'r', linestyle = '-', label = 'line of slope 1, starting at minimum times')
+plt.xscale('log')
+plt.yscale('log')
+#plt.plot(t_ff, t_ff - t_diff, label = 'slope of 1') #this is a linear line, just looks very funny since it's on a loglog plot.
+#the above line for some reason was producing a very strange line, but the one above it using axline does it correctly. The other one was not linear.
+plt.legend()
+plt.grid(True) #gridlines to help see.
 print(f"The slope of the dotted LSRL is {m}.")
 
 mean_ff = np.mean(t_ff)
@@ -57,5 +61,5 @@ mean_life = np.mean(t_life)
 ratio = mean_life / mean_ff
 print(f"The ratio between mean inferred lifetime and freefall time t_life/t_ff = {ratio}.")
 
-plt.legend()
+plt.tight_layout()
 plt.show()
