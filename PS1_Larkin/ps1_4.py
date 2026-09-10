@@ -38,7 +38,7 @@ t_life = np.array(t_life) #online sources suggested this to allow to make the po
 
 t_life_min = np.min(t_life) #minimum t_life, for start of line with slope of 1
 t_ff_min = np.min(t_ff) #minimum t_ff, for start of line of slope 1
-t_diff = t_ff_min - t_life_min #difference between t_ff and t_life at minimum times, setting y-intercept of linear line. 
+#t_diff = t_ff_min - t_life_min #difference between t_ff and t_life at minimum times, setting y-intercept of linear line. Redundant now.
 
 
 plt.scatter(t_ff, t_life, label = 'inferred lifetime vs free-fall time') #scatterplot of both log axes
