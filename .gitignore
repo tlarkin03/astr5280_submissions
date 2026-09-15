@@ -6,3 +6,4 @@ __pycache__/
 .venv/
 figures/
 _setup_check.png
+.DS_Store
