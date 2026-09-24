@@ -17,12 +17,3 @@ conda activate astr5820
 pip install -e .
 python check_setup.py
 ```
-
-| Set | Weeks | Module | Physics |
-|---|---|---|---|
-| 1 | 2, 4 | `cloud/collapse.py`, `nbody/integrators.py` | Jeans collapse, the centrifugal radius, integrator accuracy |
-| 2 | 5, 6 | `disk/structure.py`, `disk/viscous.py` | MMSN, vertical structure, SEDs, viscous spreading |
-| 3 | 7, 8 | `dust/drift.py`, `dust/settling.py` | Condensation fronts, radial drift, settling, streaming instability |
-| 4 | 9, 10 | `nbody/diagnostics.py`, `nbody/accretion.py` | Resonance widths, leapfrog, isolation mass |
-| 5 | 11, 12 | `chronology/isochron.py`, `interiors/thermal.py` | Radiometric ages, interiors, the radius valley |
-| 6 | 13, 14 | `giants/growth.py` | Pebble accretion, critical core mass, migration |
