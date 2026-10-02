@@ -79,7 +79,14 @@ def rk4_step(func, t, y, dt):
     you return, and an in-place update would leave every stored step pointing at
     the same array.
     """
-    raise NotImplementedError("PS2, section 1")
+    k_1 = func(t, y)
+    k_2 = func(t + dt/2, y + k_1*(dt/2))
+    k_3 = func(t + dt/2, y + k_2*(dt/2))
+    k_4 = func(t + dt, y + k_3*dt)
+
+    return np.array(y + (dt/6)*(k_1 + 2*k_2 + 2*k_3 + k_4))
+
+    #raise NotImplementedError("PS2, section 1")
 
 
 def integrate(stepper, func, y0, t_span, dt, store_every=1):

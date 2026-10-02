@@ -132,7 +132,10 @@ def hill_radius(a, m_planet, m_star=c.M_SUN, e=0.0):
     Only the mass ratio matters, so both masses in kilograms and both in solar
     masses give the same answer. One of each does not.
     """
-    raise NotImplementedError("PS2, section 1")
+
+    return a*((m_planet/(m_star*3))**(1/3))
+
+    #raise NotImplementedError("PS2, section 1")
 
 
 def roche_density(a, m_star=c.M_SUN):
@@ -161,4 +164,6 @@ def roche_density(a, m_star=c.M_SUN):
     There is no radius in this expression, and no property of the satellite
     other than the density being compared against.
     """
-    raise NotImplementedError("PS2, section 1")
+    return (9*m_star)/(4*np.pi*(a**3))
+    
+    # raise NotImplementedError("PS2, section 1")
