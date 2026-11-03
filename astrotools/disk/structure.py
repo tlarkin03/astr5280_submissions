@@ -187,7 +187,15 @@ def scale_height(r, T, m_star=c.M_SUN, mu=c.MU_DISK):
     float or ndarray
         Scale height H [m]. Divide by r for the aspect ratio.
     """
-    raise NotImplementedError("PS3, section 1")
+
+    #sound speed in terms of temperature, angular velocity in terms of radius
+
+    Omega_K = keplerian_omega(r, m_star)       #supplied
+    c_s = sound_speed(T,mu) #supplied
+
+    return (c_s/Omega_K)
+
+#raise NotImplementedError("PS3, section 1")
 
 
 def sed(nu, r_edges, T_func, distance, sigma_dust=None, kappa=None, cos_i=1.0):
@@ -235,4 +243,28 @@ def sed(nu, r_edges, T_func, distance, sigma_dust=None, kappa=None, cos_i=1.0):
     ndarray, shape (M,)
         F_nu [W m^-2 Hz^-1]. Multiply by nu for nu F_nu.
     """
-    raise NotImplementedError("PS3, section 1")
+    
+    F_nu = np.array([]) #array is empty to start, appended with the value for each frequency
+    if sigma_dust is None: #optically thin
+        for v in range(len(nu)):
+            B_nu = planck_nu(nu[v],T_func) #establish B_nu for a specific frequency at all T(r), so T(3) is the temp at third annulus?
+            I_nu = B_nu #I_nu for specific frequency?
+            area = np.array([]) #empty area array
+            for k in range(len(r_edges)-1): #minus 1 because only needs 2000 indexes to get all the differences
+                area = np.append(area, np.pi * (r_edges[k]**2 - r_edges[k+1]**2)) #area of given annulus at position k
+                I_nu = B_nu #intensity at given annulus k? This seems redundant, so what's going on?
+            F_nu = np.append(F_nu, (cos_i / distance**2) * np.sum(area * I_nu))
+        return F_nu;
+    for v in range(len(nu)):
+        tau_nu = kappa[v] * sigma_dust / cos_i #creates tau_nu for given frequency
+        I_nu = (1 - np.exp(-tau_nu)) * B_nu #resets I_nu?
+        area = np.array([])
+        for k in range(len(r_edges)):
+            area = np.append(area, np.pi * (r_edges[k]**2 - r_edges[k+1]**2)) #area of given annulus k
+            I_nu[k] = (1 - np.exp(-tau_nu)) * B_nu[k] #intensity at given annulus k
+        F_nu = np.append(F_nu, (cos_i / distance**2) * np.sum(area * I_nu))
+
+
+
+#raise NotImplementedError("PS3, section 1")
+

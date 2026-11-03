@@ -93,7 +93,6 @@ def cfl_timestep(grid, nu, safety=0.5):
         Kinematic viscosity at the cell centers [m^2 s^-1].
     safety : float, optional
         Fraction of the limit to return.
-
     Returns
     -------
     float
@@ -209,7 +208,6 @@ def evolve(sigma0, grid, nu, t_end, dt, n_out=200):
     n_steps = max(1, int(np.ceil(t_end / dt)))
     dt = t_end / n_steps
     out_at = set(np.round(np.linspace(0, n_steps, n_out + 1)).astype(int))
-
     sigma = np.asarray(sigma0, dtype=float).copy()
     t_list, s_list = [0.0], [sigma.copy()]
     for k in range(1, n_steps + 1):
@@ -252,7 +250,21 @@ def step(sigma, grid, nu, dt):
        centers to get Mdot = 6 pi r_face^(1/2) dq/dr.
     3. Update the mass in each cell by the difference of its two face fluxes,
        and divide by the cell area.
-
     Return a new array rather than writing into sigma.
     """
-    raise NotImplementedError("PS3, section 1")
+    #cell center: grid.r[i]
+    #cell boundaries: grid.r_face[i] and grid.r_face[i+1]
+
+    q = nu * sigma * grid.r**0.5 #makes q
+    q = pad_with_boundaries(q) #"pads" q
+
+    Mdot = np.array([]) #empty mdot array
+    for n in range(len(grid.r_face)):
+        Mdot = np.append(Mdot, 6 * np.pi * grid.r_face[n]**0.5 * (q[n+1] - q[n])) #mdot[n] = 6pi * r_face[n]^.5 * dq/dr (the difference between q at the centers before and after the face)
+    sigma2 = np.array([])
+    for n in range(len(grid.r)):
+        sigma2 = np.append(sigma2, (sigma[n] * dt * (Mdot[n+1] - Mdot[n])) / grid.area[n]) #defines sigma2 as sigma * dM/dt * dt / cell area
+    return sigma2
+    
+
+    #raise NotImplementedError("PS3, section 1")
