@@ -12,19 +12,22 @@ M = c.M_SUN #mass of star is 1 solar mass [kg]
 d = 150 * c.PC #distance of 150 parsecs, converted to [m]
 cos_i = 1 #inclination is 0, so cos_i = 1. Don't need to send to s.sed
 
-wave = np.linspace(1e-6,0.003,2000) #wavelength array from 1e-6 m to 0.003 m, same number of entries as Temp
+wave = np.logspace(-6,np.log10(.003),2000) #wavelength array from 1e-6 m to 0.003 m, same number of entries as Temp
 wave_cm = wave * 100 #wavelength array in cm, for plotting
 nu = c.C_LIGHT / wave #array of frequency from wavelengths
 
 r_in = 0.1 * c.AU #edge of 0.1 AU to [m]
 r_out = 100 * c.AU #edge of 100 AU to [m]
 
-edges = s.radial_grid(r_in,r_out) #m, 2001 edges of 2000 annuli
-diff_edges = np.diff(edges) #centers of each annulus, redundant? [m]
-T_flat = s.temperature(diff_edges,81,-0.75) #temp, flat [K]
-T_flared = s.temperature(diff_edges,160,-3/7) #temp, flared [K]
+edges = s.radial_grid(r_in, r_out) #m, 2001 edges of 2000 annuli
 
-
+centers = edges[:-1] + (np.diff(edges) / 2) #centers of each annulus [m]
+T_flat = s.temperature(centers,81,-0.75) #temp, flat [K]
+T_flared = s.temperature(centers,160,-3/7) #temp, flared [K]
+if np.isnan(T_flat).any:
+        print(np.sum(np.isnan(T_flat)))
+kappa = s.dust_opacity(nu)
+sigma_dust = s.surface_density(centers)
 #a
 
 ''' Compute nu*F_nu from 1 micrometer to 3mm, for optically thick, 0.1-100 AU. Do both flat disk and flared disk. 
@@ -33,11 +36,11 @@ Plot photosphere nu_F_nu_photo, disk, and the sum on one figure.
 Measure alpha_ir between 2.2 and 24 micrometers for each spectrum, compare with power-law value.
 
 '''
-thick_flat = s.sed(nu,edges,T_flat,d) #flat sed
-thick_flared = s.sed(nu,edges,T_flared,d) #flared sed
-F_nu_photo = np.array([])
+thick_flat = s.sed(nu,edges, T_flat, d, sigma_dust, kappa) #flat sed
+thick_flared = s.sed(nu,edges, T_flared, d, sigma_dust, kappa) #flared sed
+F_nu_photo = np.empty(len(nu))
 for v in range(len(nu)):
-        F_nu_photo = np.append(F_nu_photo, np.pi * R**2 * s.planck_nu(v,T_star) / d**2) #photosphere sed
+        F_nu_photo = np.pi * R**2 * s.planck_nu(v,T_star) / d**2 #photosphere sed
 
 nu_flat = nu * thick_flat #nu fnu
 nu_flared = nu * thick_flared #nu fnu

@@ -59,7 +59,61 @@ def hill_drag_derivs(t, y, st, dv):
     initial_state keeps its radial velocity, the drift velocity
     -2 st dv / (1 + st^2), while its azimuthal velocity follows the shear.
     """
-    raise NotImplementedError("PS4, section 1")
+    #y[0] = x, y[1] = y, y[2] = vx, y[3] = vy
+
+    x = y[0]
+    y_0 = y[1]
+    vx = y[2]
+    vy = y[3]
+
+    u_y = -(3/2) * x - dv #defines u_y in terms of x and headwind
+    r = np.sqrt(x**2 + y_0**2) #defines r in terms of x and y
+
+    ax = (2.0 * vy) + (3.0 * x) - (3.0 * x / r**3) - (vx / st) #defines acceleration in x
+    ay = (-2.0 * vx) - (3.0 * y_0 / r**3) - ((vy - u_y) / st) #defines acceleration in y
+
+    return np.array([vx, vy, ax, ay])
+    
+#raise NotImplementedError("PS4, section 1")
+
+
+def rk4_step(func, t, y, dt, st, dv):
+    """One step of the classical four-stage Runge-Kutta method.
+
+    Parameters
+    ----------
+    func : callable
+        func(t, y) -> dy/dt, returning an array the same shape as y.
+    t : float
+        Current time [s].
+    y : ndarray
+        Current state vector.
+    dt : float
+        Step size [s].
+
+    Returns
+    -------
+    ndarray
+        State at t + dt.
+
+    Notes
+    -----
+    Four stages: the slope at the start, twice at the midpoint, once at the end,
+    combined with weights 1/6, 1/3, 1/3, 1/6. Global error O(dt^4).
+
+    Return a new array rather than writing into y. The driver keeps the states
+    you return, and an in-place update would leave every stored step pointing at
+    the same array.
+    """
+    k_1 = func(t, y, st, dv)
+    k_2 = func(t + dt/2, y + k_1*(dt/2), st, dv)
+    k_3 = func(t + dt/2, y + k_2*(dt/2), st, dv)
+    k_4 = func(t + dt, y + k_3*dt, st, dv)
+
+    #k's all modified to now send stokes number and headwind to function. This is only used for the hill_derivatives
+
+    return np.array(y + (dt/6)*(k_1 + 2*k_2 + 2*k_3 + k_4))
+
 
 
 def initial_state(x0, st, dv):
@@ -80,7 +134,7 @@ def initial_state(x0, st, dv):
     return np.array([x0, y0, vx, vy])
 
 
-def encounter(stepper, func, y0, r_cap, t_max=None, dt_max=0.02):
+def encounter(stepper, func, y0, r_cap, st, dv, t_max=None, dt_max=0.02):
     """Advance a pebble until it is captured or leaves the region.
 
     The step is dt = min(dt_max, 0.02 r^1.5), where r is the distance from the
@@ -118,7 +172,7 @@ def encounter(stepper, func, y0, r_cap, t_max=None, dt_max=0.02):
     while t < t_max:
         r = np.hypot(y[0], y[1])
         dt = min(dt_max, 0.02 * r ** 1.5)
-        y = np.asarray(stepper(func, t, y, dt), dtype=float)
+        y = np.asarray(stepper(func, t, y, dt, st, dv), dtype=float)
         t += dt
         ts.append(t)
         ys.append(y.copy())
